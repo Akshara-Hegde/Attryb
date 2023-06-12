@@ -31,7 +31,7 @@ const adminSignup = async (req, res) => {
 };
 
 const adminLogin = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body.user;
 
   const user = await User.findOne({ email });
 

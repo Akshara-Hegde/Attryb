@@ -5,7 +5,7 @@ const saltRounds = 10;
 
  const userSignup = async (req, res) => {
   const { email, password } = req.body;
-
+console.log(email,password)
   // Hash the password
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -30,7 +30,7 @@ const saltRounds = 10;
 };
 
  const userLogin = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body.user;
 
   const user = await User.findOne({ email });
 
@@ -44,6 +44,7 @@ const saltRounds = 10;
     { email: user.email, role: user.role },
     process.env.SECRET_KEY
   );
+  
 
   res.json({ accessToken });
 };

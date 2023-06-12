@@ -4,7 +4,7 @@ const Cars = require("../Models/inventory");
 
 const getOEMS = async (req, res) => {
   try {
-    const searchTerm = req.params.search;
+    const searchTerm = req.query.query || "";
     console.log(searchTerm);
     const paint = req.query.paint ? req.query.paint : "";
     const price = req.query.price;
@@ -16,6 +16,7 @@ const getOEMS = async (req, res) => {
         { year: { $regex: searchTerm, $options: "i" } },
       ],
     });
+    console.log(ans)
     res.json(ans);
   } catch (err) {
     console.log(err);
@@ -24,7 +25,8 @@ const getOEMS = async (req, res) => {
 
 const numberOfManufacturers = async (req, res) => {
   try {
-    const count = await OEM.distinct("manufacturer").length;
+    const count = await OEM.count();
+    console.log(count)
     res.json({ count });
   } catch (error) {
     console.error("Error retrieving the number of OEM models:", error);
@@ -50,8 +52,10 @@ const view = async (req, res) => {
     if (!car) {
       return res.send("No data found");
     }
-    console.log(car);
-    return res.status(201).json(car);
+    // console.log(car);
+    const role = req.user.role;
+    const response = { car, role };
+    return res.status(201).json(response);
   } catch (err) {
     console.log(err);
   }
@@ -104,13 +108,13 @@ const edit = async (req, res) => {
   try {
     const id = req.params.id;
     const car = await Cars.findById(id);
-    console.log(req.body);
+    console.log(req.body.item);
     if (!car) {
       console.log("id not valid");
       return res.send("invalid id");
     }
     // const updatedCarData = JSON.parse(req.body.item);
-    const updatedCarData = req.body
+    const updatedCarData = JSON.parse(req.body.item);
     const vehicle = await Cars.findByIdAndUpdate(id, updatedCarData, {
       new: true,
     });
@@ -134,6 +138,108 @@ const deleteCar = async (req, res) => {
     console.log(err);
   }
 };
+
+// const records = [
+//   {
+//     manufacturer: "Honda",
+//     model: "BRV",
+//     year: "2022",
+//     price: "1000000",
+//     colors: ["Red", "Blue"],
+//     mileage: "15",
+//     power: "100BHP",
+//     top_speed: "150kmph",
+//   },
+//   {
+//     manufacturer: "Honda",
+//     model: "CRV",
+//     year: "2022",
+//     price: "1200000",
+//     colors: ["Red", "Green"],
+//     mileage: "15",
+//     power: "110BHP",
+//     top_speed: "170kmph",
+//   },
+//   {
+//     manufacturer: "Honda",
+//     model: "Ciaz",
+//     year: "2023",
+//     price: "150000",
+//     colors: ["Black", "Silver"],
+//     mileage: "30",
+//     power: "180bhp",
+//     top_speed: "140kmph",
+//   },
+//   {
+//     manufacturer: "Maruti Suzuki",
+//     model: "Swift",
+//     year: "2022",
+//     price: "120000",
+//     colors: ["Green", "Yellow"],
+//     mileage: "17",
+//     power: "220BHP",
+//     top_speed: "160kmph",
+//   },
+//   {
+//     manufacturer: "Renault",
+//     model: "Duster",
+//     year: "2022",
+//     price: "820000",
+//     colors: ["Green", "Black"],
+//     mileage: "17",
+//     power: "120BHP",
+//     top_speed: "190kmph",
+//   },
+//   {
+//     manufacturer: "Skoda",
+//     model: "Rapid",
+//     year: "2020",
+//     price: "700000",
+//     colors: ["White", "Black"],
+//     mileage: "17",
+//     power: "140BHP",
+//     top_speed: "150kmph",
+//   },
+//   {
+//     manufacturer: "Audi",
+//     model: "A3",
+//     year: "2019",
+//     price: "1820000",
+//     colors: ["Red", "Black"],
+//     mileage: "17",
+//     power: "220BHP",
+//     top_speed: "210kmph",
+//   },
+//   {
+//     manufacturer: "BMW",
+//     model: "x7",
+//     year: "2016",
+//     price: "1220000",
+//     colors: ["Green", "White"],
+//     mileage: "10",
+//     power: "280BHP",
+//     top_speed: "230kmph",
+//   },
+//   {
+//     manufacturer: "Kia",
+//     model: "Sonnet",
+//     year: "2020",
+//     price: "820000",
+//     colors: ["White", "Red"],
+//     mileage: "17",
+//     power: "100BHP",
+//     top_speed: "130kmph",
+//   },
+  // ...
+//];
+
+//  OEM.insertMany(records)
+//   .then(() => {
+//     console.log("inserted");
+//   })
+//   .catch((err) => {
+//     console.log(err);
+//   });
 
 module.exports = {
   view,
